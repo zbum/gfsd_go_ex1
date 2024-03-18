@@ -3,6 +3,7 @@ package student
 import (
 	"encoding/json"
 	"fmt"
+	"gfsd_go_ex1/common/http/mime"
 	"net/http"
 	"strconv"
 )
@@ -16,7 +17,9 @@ func NewHandler(studentService *Service) *Handler {
 }
 
 func (h Handler) GetStudent(w http.ResponseWriter, r *http.Request) {
-	idParam := r.PathValue("id")
+	w.Header().Add(mime.HeadContentType, mime.ContentTypeJson)
+
+	idParam := r.PathValue("studentId")
 	parsedId, err := strconv.ParseInt(idParam, 10, 64)
 	if err != nil {
 		return
@@ -36,6 +39,8 @@ func (h Handler) GetStudent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handler) RegisterStudent(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add(mime.HeadContentType, mime.ContentTypeJson)
+
 	switch r.Method {
 	case http.MethodPost:
 		var studentResponse StudentResponse
