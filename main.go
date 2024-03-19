@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	dataSource := common.NewDataSource()
 	mux := initializeMux(dataSource)
 	log.Println("Listening on http://0.0.0.0:8080")

@@ -17,6 +17,14 @@ func NewHandler(studentService *Service) *Handler {
 }
 
 func (h Handler) ProcessScores(w http.ResponseWriter, r *http.Request) {
+	// 처리중에 Panic 이 발생하면 이를 처리하는 코드를 Handler 에 설정합니다.
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("Recovered from panic:", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+	}()
+
 	w.Header().Add(mime.HeadContentType, mime.ContentTypeJson)
 
 	switch r.Method {
