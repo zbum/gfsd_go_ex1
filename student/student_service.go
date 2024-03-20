@@ -23,22 +23,22 @@ func (s Service) GetStudent(id int64) *Student {
 	return student
 }
 
-func (s Service) RegisterStudent(context context.Context, student *Student) *Student {
+func (s Service) RegisterStudent(context context.Context, student *Student) (*Student, error) {
 	db := s.datasource.GetDB()
 
 	tx, err := db.BeginTx(context, nil)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	defer tx.Rollback()
 
 	err = s.studentRepository.Insert(tx, student)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	if err = tx.Commit(); err != nil {
-		return nil
+		return nil, err
 	}
-	return student
+	return student, nil
 }

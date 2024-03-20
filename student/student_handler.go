@@ -57,27 +57,29 @@ func (h Handler) RegisterStudent(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add(mime.HeadContentType, mime.ContentTypeJson)
 
-	switch r.Method {
-	case http.MethodPost:
-		var studentResponse StudentResponse
-		err := json.NewDecoder(r.Body).Decode(&studentResponse)
-		if err != nil {
-			http.Error(w, `{"error":"true"}`, http.StatusBadRequest)
-			return
-		}
-		studentJson, err := json.Marshal(studentResponse)
-		if err != nil {
-			http.Error(w, `{"error":"true"}`, http.StatusBadRequest)
-			return
-		}
-
-		h.studentService.RegisterStudent(r.Context(), &Student{studentResponse.Id, studentResponse.Name})
-
-		fmt.Fprint(w, string(studentJson))
-
-	case http.MethodGet:
+	if r.Method != http.MethodPost {
 		http.Error(w, `{"error":"true"}`, http.StatusMethodNotAllowed)
-
 	}
+
+	var studentRequest StudentRequest
+	err := json.NewDecoder(r.Body).Decode(&studentRequest)
+	if err != nil {
+		http.Error(w, `{"error":"true"}`, http.StatusBadRequest)
+		return
+	}
+
+	student, err := h.studentService.RegisterStudent(r.Context(), &Student{studentRequest.Id, studentRequest.Name})
+	if err != nil {
+		http.Error(w, `{"error":"true"}`, http.StatusBadRequest)
+		return
+	}
+
+	studentJson, err := json.Marshal(student)
+	if err != nil {
+		http.Error(w, `{"error":"true"}`, http.StatusBadRequest)
+		return
+	}
+
+	fmt.Fprint(w, string(studentJson))
 
 }
