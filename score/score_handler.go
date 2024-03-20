@@ -16,25 +16,25 @@ func NewHandler(studentService *Service) *Handler {
 	return &Handler{studentService}
 }
 
-func (h Handler) ProcessScores(w http.ResponseWriter, r *http.Request) {
-	// 처리중에 Panic 이 발생하면 이를 처리하는 코드를 Handler 에 설정합니다.
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Println("Recovered from panic:", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		}
-	}()
-
-	w.Header().Add(mime.HeadContentType, mime.ContentTypeJson)
-
-	switch r.Method {
-	case http.MethodGet:
-		h.getScores(w, r)
-	case http.MethodPost:
-		h.registerScore(w, r)
-	}
-}
-func (h Handler) getScores(w http.ResponseWriter, r *http.Request) {
+//	func (h Handler) ProcessScores(w http.ResponseWriter, r *http.Request) {
+//		// 처리중에 Panic 이 발생하면 이를 처리하는 코드를 Handler 에 설정합니다.
+//		defer func() {
+//			if err := recover(); err != nil {
+//				fmt.Println("Recovered from panic:", err)
+//				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+//			}
+//		}()
+//
+//		w.Header().Add(mime.HeadContentType, mime.ContentTypeJson)
+//
+//		switch r.Method {
+//		case http.MethodGet:
+//			h.getScores(w, r)
+//		case http.MethodPost:
+//			h.registerScore(w, r)
+//		}
+//	}
+func (h Handler) GetScores(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add(mime.HeadContentType, mime.ContentTypeJson)
 
 	studentIdParam := r.PathValue("studentId")
@@ -59,7 +59,7 @@ func (h Handler) getScores(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(scoresJson))
 }
 
-func (h Handler) registerScore(w http.ResponseWriter, r *http.Request) {
+func (h Handler) RegisterScore(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add(mime.HeadContentType, mime.ContentTypeJson)
 
 	var scoreRequest ScoreRequest

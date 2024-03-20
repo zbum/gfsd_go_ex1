@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gfsd_go_ex1/common/http/mime"
+	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 )
@@ -27,8 +28,8 @@ func (h Handler) GetStudent(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add(mime.HeadContentType, mime.ContentTypeJson)
 
-	idParam := r.PathValue("studentId")
-	parsedId, err := strconv.ParseInt(idParam, 10, 64)
+	vars := mux.Vars(r)
+	parsedId, err := strconv.ParseInt(vars["studentId"], 10, 64)
 	if err != nil {
 		return
 	}
@@ -57,27 +58,20 @@ func (h Handler) RegisterStudent(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add(mime.HeadContentType, mime.ContentTypeJson)
 
-	switch r.Method {
-	case http.MethodPost:
-		var studentResponse StudentResponse
-		err := json.NewDecoder(r.Body).Decode(&studentResponse)
-		if err != nil {
-			http.Error(w, `{"error":"true"}`, http.StatusBadRequest)
-			return
-		}
-		studentJson, err := json.Marshal(studentResponse)
-		if err != nil {
-			http.Error(w, `{"error":"true"}`, http.StatusBadRequest)
-			return
-		}
-
-		h.studentService.RegisterStudent(r.Context(), &Student{studentResponse.Id, studentResponse.Name})
-
-		fmt.Fprint(w, string(studentJson))
-
-	case http.MethodGet:
-		http.Error(w, `{"error":"true"}`, http.StatusMethodNotAllowed)
-
+	var studentResponse StudentResponse
+	err := json.NewDecoder(r.Body).Decode(&studentResponse)
+	if err != nil {
+		http.Error(w, `{"error":"true"}`, http.StatusBadRequest)
+		return
 	}
+	studentJson, err := json.Marshal(studentResponse)
+	if err != nil {
+		http.Error(w, `{"error":"true"}`, http.StatusBadRequest)
+		return
+	}
+
+	h.studentService.RegisterStudent(r.Context(), &Student{studentResponse.Id, studentResponse.Name})
+
+	fmt.Fprint(w, string(studentJson))
 
 }
