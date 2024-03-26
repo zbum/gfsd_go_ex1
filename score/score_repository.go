@@ -23,7 +23,7 @@ func (r Repository) FindByStudentId(tx *sql.Tx, id int64) ([]Score, error) {
 
 	for rows.Next() {
 		var score Score
-		if err != nil {
+		if err := rows.Scan(&score.ID, &score.Semester, &score.StudentId, &score.Score); err != nil {
 			return nil, fmt.Errorf("findByStudentId %q: %v", id, err)
 		}
 		scores = append(scores, score)

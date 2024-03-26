@@ -45,7 +45,7 @@ func (h Handler) getScores(w http.ResponseWriter, r *http.Request) {
 	}
 	scores := h.scoreService.GetScores(r.Context(), parsedStudentId)
 
-	var scoreResponses = make([]ScoreResponse, len(scores))
+	var scoreResponses = make([]ScoreResponse, 0, len(scores))
 	if scores != nil {
 		for _, score := range scores {
 			scoreResponses = append(scoreResponses, ScoreResponse{score.ID, score.Semester, score.StudentId, score.Score})
