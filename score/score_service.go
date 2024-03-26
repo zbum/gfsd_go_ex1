@@ -31,22 +31,22 @@ func (s Service) GetScores(context context.Context, id int64) []Score {
 	return scores
 }
 
-func (s Service) RegisterStudent(context context.Context, score *Score) *Score {
+func (s Service) RegisterStudent(context context.Context, score *Score) (*Score, error) {
 	db := s.datasource.GetDB()
 
 	tx, err := db.BeginTx(context, txOptions)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	defer tx.Rollback()
 
 	err = s.scoreRepository.Insert(tx, score)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	if err = tx.Commit(); err != nil {
-		return nil
+		return nil, err
 	}
-	return score
+	return score, nil
 }

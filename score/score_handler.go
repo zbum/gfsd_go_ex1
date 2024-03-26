@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gfsd_go_ex1/common/http/mime"
+	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 )
@@ -16,28 +17,11 @@ func NewHandler(studentService *Service) *Handler {
 	return &Handler{studentService}
 }
 
-//	func (h Handler) ProcessScores(w http.ResponseWriter, r *http.Request) {
-//		// 처리중에 Panic 이 발생하면 이를 처리하는 코드를 Handler 에 설정합니다.
-//		defer func() {
-//			if err := recover(); err != nil {
-//				fmt.Println("Recovered from panic:", err)
-//				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-//			}
-//		}()
-//
-//		w.Header().Add(mime.HeadContentType, mime.ContentTypeJson)
-//
-//		switch r.Method {
-//		case http.MethodGet:
-//			h.getScores(w, r)
-//		case http.MethodPost:
-//			h.registerScore(w, r)
-//		}
-//	}
 func (h Handler) GetScores(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add(mime.HeadContentType, mime.ContentTypeJson)
 
-	studentIdParam := r.PathValue("studentId")
+	vars := mux.Vars(r)
+	studentIdParam := vars["studentId"]
 	parsedStudentId, err := strconv.ParseInt(studentIdParam, 10, 64)
 	if err != nil {
 		http.Error(w, `{"error":"true"}`, http.StatusBadRequest)
@@ -45,7 +29,7 @@ func (h Handler) GetScores(w http.ResponseWriter, r *http.Request) {
 	}
 	scores := h.scoreService.GetScores(r.Context(), parsedStudentId)
 
-	var scoreResponses = make([]ScoreResponse, len(scores))
+	var scoreResponses = make([]ScoreResponse, 0, len(scores))
 	if scores != nil {
 		for _, score := range scores {
 			scoreResponses = append(scoreResponses, ScoreResponse{score.ID, score.Semester, score.StudentId, score.Score})
@@ -74,7 +58,7 @@ func (h Handler) RegisterScore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.scoreService.RegisterStudent(r.Context(), &Score{scoreRequest.Id, scoreRequest.Semester, scoreRequest.StudentId, scoreRequest.Score})
+	h.scoreService.RegisterStudent(r.Context(), &Score{scoreRequest.Id, scoreRequest.Semester, scoreRequest.StudentNumber, scoreRequest.Score})
 
 	fmt.Fprint(w, string(studentJson))
 

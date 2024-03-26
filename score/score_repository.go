@@ -23,7 +23,7 @@ func (r Repository) FindByStudentId(tx *sql.Tx, id int64) ([]Score, error) {
 
 	for rows.Next() {
 		var score Score
-		if err != nil {
+		if err := rows.Scan(&score.ID, &score.Semester, &score.StudentId, &score.Score); err != nil {
 			return nil, fmt.Errorf("findByStudentId %q: %v", id, err)
 		}
 		scores = append(scores, score)
@@ -37,7 +37,7 @@ func (r Repository) FindByStudentId(tx *sql.Tx, id int64) ([]Score, error) {
 func (r Repository) Insert(tx *sql.Tx, score *Score) error {
 	result, err := tx.Exec("INSERT INTO Scores VALUES (?, ?, ?, ?)", score.ID, score.Semester, score.StudentId, score.Score)
 	if err != nil {
-		return fmt.Errorf("insert : %v", score)
+		return fmt.Errorf("insert : %v, %v", score, err)
 	}
 	n, err := result.RowsAffected()
 	if n == 1 {
